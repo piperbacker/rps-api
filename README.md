@@ -1,5 +1,4 @@
 # rps-api
-rock, paper, scissors game API built with node.js and express
 
 Purpose: rock, paper, scissors game API built with node.js and express.
 
