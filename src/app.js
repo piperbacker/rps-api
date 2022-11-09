@@ -21,6 +21,7 @@ const counter = {
 
 let aiPlay = "";
 
+/* Purpose: Get AI's next round based on player's history */
 function getAiPlay() {
   let max = getRandomMove();  // randomly generate first move
   let r = counter.rock, p = counter.paper, s = counter.scissors;
@@ -124,7 +125,7 @@ app.post('/play', (req, res) => {
   let message = `you played ${myPlay}, I played ${aiPlay}, you ${result}`;
 
   //console.log(`message: ${message}`);
-  
+
   if (result === "win") {
     results.player++;
     res.status(201).send(message);
