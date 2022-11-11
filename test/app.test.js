@@ -13,6 +13,7 @@ describe('GET /results endpoint', () => {
 
         chai.request(app)
             .get('/results')
+            .set('authorization', 'secretpassword')
             .end(function (err, res) {
                 expect(err).to.be.null;
                 res.should.have.status(200);
@@ -29,6 +30,7 @@ describe('GET /reset endpoint', () => {
 
         chai.request(app)
             .get('/reset')
+            .set('authorization', 'secretpassword')
             .end(function (err, res) {
                 expect(err).to.be.null;
                 res.should.have.status(200);
@@ -47,6 +49,7 @@ describe('POST /play endpoint', () => {
 
         chai.request(app)
             .post('/play')
+            .set('authorization', 'secretpassword')
             .send({ "myHand": "1234" })
             .end(function (err, res) {
                 res.should.have.status(400);
@@ -62,6 +65,7 @@ describe('POST /play endpoint', () => {
 
         chai.request(app)
             .post('/play')
+            .set('authorization', 'secretpassword')
             .send({ "myHand": "rock" })
             .end(function (err, res) {
                 res.should.have.status(201);
@@ -76,6 +80,7 @@ describe('POST /play endpoint', () => {
 
         chai.request(app)
             .post('/play')
+            .set('authorization', 'secretpassword')
             .send({ "myHand": "paper" })
             .end(function (err, res) {
                 res.should.have.status(204);
@@ -87,12 +92,42 @@ describe('POST /play endpoint', () => {
 
         chai.request(app)
             .post('/play')
+            .set('authorization', 'secretpassword')
             .send({ "myHand": "scissors" })
             .end(function (err, res) {
                 res.should.have.status(418);
                 res.body.should.be.a('object');
                 const actual = res.body.message
                 expect(actual).to.be.equal(`you played scissors, I played scissors, you tie`);
+                done();
+            });
+    })
+
+    it('return 401 with incorrect password on auth header', (done) => {
+
+        chai.request(app)
+            .post('/play')
+            .set('authorization', 'abcd')
+            .send({ "myHand": "rock" })
+            .end(function (err, res) {
+                res.should.have.status(401);
+                res.body.should.be.a('object');
+                const actual = res.body.message
+                expect(actual).to.be.equal(`Not permitted`);
+                done();
+            });
+    })
+
+    it('return 401 without auth header', (done) => {
+
+        chai.request(app)
+            .post('/play')
+            .send({ "myHand": "rock" })
+            .end(function (err, res) {
+                res.should.have.status(401);
+                res.body.should.be.a('object');
+                const actual =  res.body.message
+                expect(actual).to.be.equal(`Not permitted`);
                 done();
             });
     })

@@ -5,6 +5,7 @@ const port = 5000;
 
 // Configuring body parser middleware
 app.use(bodyParser.json());
+// setting testing mode default to false
 app.set('testing', false);
 
 // Number of wins for both sides
@@ -20,7 +21,16 @@ const counter = {
   scissors: 0,
 };
 
+// initialize aiHand to empty
 let aiHand = "";
+
+/* Purpose: Basic Authentication concept */
+function isAuthorized(req, res, next) {
+  const auth = req.headers.authorization;
+  let message = `Not permitted`
+  if (auth === 'secretpassword') next();
+  else res.status(401).send({ message: message });
+}
 
 /* Purpose: Get AI's next round based on player's history */
 function getAiHand() {
@@ -28,6 +38,7 @@ function getAiHand() {
   let r = counter.rock, p = counter.paper, s = counter.scissors;
 
   // find most frequent player move
+  // check if all equal, on true keep randomly generated move
   if (!((r === p) && (p === s))) {
     if (r > p) {
       max = "rock";
@@ -96,12 +107,12 @@ const validateInput = function (req, res, next) {
 };
 
 /* /results: return the number of wins each the player and computer have. */
-app.get('/results', (req, res) => {
+app.get('/results', isAuthorized, (req, res) => {
   res.status(200).send(results);
 });
 
 /* /reset: AI starts the game, and prompts user to user /play to respond with player move. */
-app.get('/reset', (req, res) => {
+app.get('/reset', isAuthorized, (req, res) => {
   aiHand = getAiHand();
 
   // reset results ?
@@ -116,7 +127,7 @@ app.get('/reset', (req, res) => {
 app.use(validateInput);
 
 /* /play: Get both user and ai plays, evaluate winner and return results to player. */
-app.post('/play', (req, res) => {
+app.post('/play', isAuthorized, (req, res) => {
   let myHand = req.body.myHand;
 
   // check testing mode
