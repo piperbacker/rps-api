@@ -3,9 +3,9 @@ const expect = chai.expect;
 const should = chai.should();
 const chaiHttp = require('chai-http');
 const app = require('../src/app');
-//let aiPlay = require('../src/app').aiPlay;
 
 chai.use(chaiHttp);
+app.set('testing', true)
 
 
 describe('GET /results endpoint', () => {
@@ -41,6 +41,8 @@ describe('GET /reset endpoint', () => {
 })
 
 describe('POST /play endpoint', () => {
+    app.set('aiHand', 'scissors');
+
     it('return 400 on invalid player input', (done) => {
 
         chai.request(app)
@@ -58,51 +60,42 @@ describe('POST /play endpoint', () => {
 
     it('return 201 on player win', (done) => {
 
-        //let myHand = "rock"
-        // aiPlay = "scissors";
-        // console.log(`AI PLAY: ${aiPlay}`);
-
         chai.request(app)
             .post('/play')
             .send({ "myHand": "rock" })
             .end(function (err, res) {
                 res.should.have.status(201);
                 res.body.should.be.a('object');
-                //const actual = res.body.message
-                //expect(actual).to.be.equal(`you played ${myHand}, I played ${aiPlay}, you ${result}`);
+                const actual = res.body.message
+                expect(actual).to.be.equal(`you played rock, I played scissors, you win`);
                 done();
             });
     })
 
-    /*it('return 204 on player lose', (done) => {
-
-        aiPlay = "scissors";
-        //console.log(`AI PLAY: ${aiPlay}`);
+    it('return 204 on player lose', (done) => {
 
         chai.request(app)
             .post('/play')
             .send({ "myHand": "paper" })
             .end(function (err, res) {
                 res.should.have.status(204);
-                //res.body.should.be.a('object');
                 done();
             });
     })
 
     it('return 418 on tie', (done) => {
-        aiPlay = "scissors";
-        //console.log(`AI PLAY: ${aiPlay}`);
 
         chai.request(app)
             .post('/play')
             .send({ "myHand": "scissors" })
             .end(function (err, res) {
-                //console.log(res.body.message);
                 res.should.have.status(418);
                 res.body.should.be.a('object');
+                const actual = res.body.message
+                expect(actual).to.be.equal(`you played scissors, I played scissors, you tie`);
                 done();
             });
-    })*/
+    })
 
 })
 
